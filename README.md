@@ -1,8 +1,8 @@
 # lab_aedII
 **Git username:**
-luizaires
+<br>luizaires <br>
 miqueiasnilton
 
 **Grupo:**
-Francisco Luiz Aires Silva - PEX1247
+<br>Francisco Luiz Aires Silva - PEX1247<br>
 Miqueias Nilton de Araujo - PET2037
