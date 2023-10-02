@@ -1,3 +1,4 @@
+//Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,17 +13,24 @@ struct contato {
 // hashFunc
 typedef struct contato *agenda[size];
 
+int exibirMenu(void);
+void executarMenu(agenda, int);
 void inserirContato(struct contato *agenda[]);
-void removerContato(agenda, struct contato *);
-void exportarAgenda(agenda);
+struct contato *buscarContato(agenda, char[]);
+void removerContato(agenda, char[]);
+void exportarAgenda(agenda, char[]);
 
 int main(void) {
   struct contato *agenda[size];
-  inserirContato(agenda);
+  int opt;
+  do {
+    opt = exibirMenu();
+    executarMenu(agenda, opt);
+  } while (opt != 1);
   return 0;
 }
 
-int ExibirMenu() {
+int exibirMenu() {
   int opcao;
 
   printf("\nMenu de opções\n");
@@ -39,7 +47,10 @@ int ExibirMenu() {
 }
 
 void executarMenu(struct contato *agenda[], int opcao) {
+  //???É msm necessário
   struct contato *c;
+  char filename[15];
+
   switch (opcao) {
   case 1:
     break;
@@ -50,8 +61,21 @@ void executarMenu(struct contato *agenda[], int opcao) {
 
   case 3:
     printf("\nInforme o contato que deseja remover:");
-    scanf("%d", c);
-    removerContato(agenda, c);
+    scanf("%[^\n]%*c", c->nome);
+    removerContato(agenda, c->nome);
+    break;
+
+  case 4:
+    printf("\nInforme o contato que deseja buscar:");
+    scanf("%[^\n]%*c", c->nome);
+    buscarContato(agenda, c->nome);
+    break;
+
+  case 5:
+    printf("\nInforme o nome do arquivo par o qual os dados de contato serao "
+           "exportados");
+    scanf("%[^\n]%*c", filename);
+    exportarAgenda(agenda, filename);
     break;
   }
 }
@@ -63,6 +87,7 @@ int calcularChave(char str[]) {
   for (int i = 0; i <= strlen(str); i++) {
     key += str[i];
   }
+  printf("Valor da chave: %d", key);
   return key;
 }
 
@@ -80,6 +105,8 @@ struct contato *criarContato() {
   scanf("%s", (*novo).tel);
   printf("E-mail: ");
   scanf("%s", (*novo).email);
+  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
+         novo->tel);
   return novo;
 }
 
@@ -87,5 +114,44 @@ void inserirContato(struct contato *agenda[]) {
   struct contato *ptrContato = criarContato();
   int key = calcularChave(ptrContato->nome);
   int index = hashFunc(key);
-  agenda[index] = ptrContato;
+  while (agenda[index] != NULL && index < size) {
+    index++;
+    agenda[index] = ptrContato;
+  }
+  printf("Contato inserido\n");
+  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", agenda[index]->nome,
+         agenda[index]->tel, agenda[index]->tel);
 }
+
+struct contato *buscarContato(agenda lista, char nome[]) {
+  // Calcula o valor da chave a a partir do nome do contato informado
+  int key = calcularChave(nome);
+  // Aplica a função hash para retornar o indice de uma dada chave
+  int index = hashFunc(key);
+  // Percorre a lista de contatos a partir desse indice
+  while (lista[index] != NULL) {
+    // se o nome do contato localizado no índice é o mesmo do parâmetro
+    // informado na função de busca, o endereço do contato é retornado
+    if (lista[index]->nome == nome) {
+      return lista[index];
+    }
+    // Caso não o encontre inicialmente na posição indicada pelo índice, a
+    // função irá verificar se o dado se encontra na posição seguinte
+    index++;
+  }
+  // se não o contato não for encontrado, a função retorna o valor 0
+  return 0;
+}
+
+void removerContato(agenda lista, char nome[]) {
+  struct contato *contato = buscarContato(lista, nome);
+  // VERIFICAR!!! Talvez essa função libera o endereço da lista, mas não libera
+  // os espaços de memória alocados com os dados da struct de contato
+  free(contato);
+}
+
+// Essa função deverá abir um arquivo para leitura e então os dados de contatos
+// contidos na lista telefônica deverão ser copiados, usando uma função da
+// biblioteca string.h O problema é como realizar essa implementação usando
+// lógica de ponteiros??
+void exportarAgenda(agenda lista, char arq[]) {}
