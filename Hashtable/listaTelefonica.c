@@ -1,5 +1,7 @@
 /*Etapas:
-1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado, apenas se elas não possuem erro de compilação, como por exemplo, erros de tipagem*/
+1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado,
+apenas se elas não possuem erros de compilação, como por exemplo, erros de tipagem
+2-Rodar o código, corrigindo os bugs na ordem que vão aparecendo de modo a liberar a pilha de execução, averiguando os retornos das funções.*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,6 +34,11 @@ int main(void) {
   return 0;
 }
 
+//Criação de um menu que executará a função desejada, de acordo com a opção escolhida
+//A sua principal vantagem é que essa execução é executada em loop.
+//Assim, não é necessário testar todas as implementações na função main
+//Podemos escolher quais executar, ou mesmo fazer isso mais de uma vez
+//Sem necessidade de rodar o código novamente
 int exibirMenu() {
   int opcao;
 
@@ -110,23 +117,33 @@ struct contato *criarContato() {
   scanf("%s", (*novo).tel);
   printf("E-mail: ");
   scanf("%s", (*novo).email);
-  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
-         novo->tel);
+  printf("\nNome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
+         novo->email);
   return novo;
 }
 
-void inserirContato(struct contato *agenda[]) {
+void inserirContato(agenda lista) {
+  printf("\nPonteiro agenda: %p\n", lista);
   struct contato *ptrContato = criarContato();
+  printf("\nPonteiro struct: %p\n", ptrContato);
   int key = calcularChave(ptrContato->nome);
-  int index = hashFunc(key);
-  while (agenda[index] != NULL && index < size) {
-    index++;
-    agenda[index] = ptrContato;
+  printf("\nChave: %d\n", key);
+  int hashIndex = hashFunc(key);
+  //Desafio!Para evitar que o valor do indice da tabela hash fosse atualizado a cada laço de repetição
+  //foi necessario armazená-lo em uma variável temporária
+  int temp = hashIndex;
+  printf("Index: %d\n", hashIndex);
+  while (lista[temp] != NULL && temp < size) {
+    lista[temp] = ptrContato;
+    temp++;
+  }
+  if(lista[temp] == NULL){
+    hashIndex = temp;
   }
   //Teste
-  printf("Contato inserido\n");
-  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", agenda[index]->nome,
-         agenda[index]->tel, agenda[index]->tel);
+  printf("\nContato inserido\n");
+  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", lista[hashIndex]->nome,
+         lista[hashIndex]->tel, lista[hashIndex]->email);
 }
 
 struct contato *buscarContato(agenda lista, char nome[]) {
@@ -155,7 +172,14 @@ void removerContato(agenda lista, char nome[]) {
   free(contato);
 }
 
-/* DIFICULDADES! Essa função deverá abir um arquivo para escrita e então os dados de contatos contidos na lista telefônica deverão ser copiados, usando uma função da biblioteca string.h O problema é como realizar essa implementação usando lógica de ponteiros??*/
+/* DIFICULDADES! 
+Essa função deverá abir um arquivo para escrita e então 
+os dados de contatos contidos na lista telefônica deverão ser copiados,
+usando uma função da biblioteca string.h 
+O problema é como realizar essa implementação usando lógica de ponteiros??*/
+/*SOLUÇÃO ENCONTRDADA
+A biblioteca stdio.h possui a função fwrite que permite escrever
+os elementos da struct para um arquivo*/
 void exportarAgenda(agenda lista, char arq[]) {
   //Declarando ponteiro para o arquivo
   FILE* fp;
