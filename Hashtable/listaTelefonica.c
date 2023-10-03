@@ -1,4 +1,5 @@
-//Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado
+/*Etapas:
+1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado, apenas se elas não possuem erro de compilação, como por exemplo, erros de tipagem*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,7 @@ void inserirContato(struct contato *agenda[]);
 struct contato *buscarContato(agenda, char[]);
 void removerContato(agenda, char[]);
 void exportarAgenda(agenda, char[]);
+void exibirAgenda(agenda);
 
 int main(void) {
   struct contato *agenda[size];
@@ -39,44 +41,47 @@ int exibirMenu() {
   printf("3. Remover contato da lista\n");
   printf("4. Buscar contato na agenda\n");
   printf("5. Exportar agenda de contatos para arquivo\n");
-  printf("6. Exibir lista\n");
+  printf("6. Exibir lista telefônica\n");
   printf("Digite o número corresponde a opcão que deseja executar: ");
   scanf("%d", &opcao);
 
   return opcao;
 }
 
-void executarMenu(struct contato *agenda[], int opcao) {
+void executarMenu(struct contato *ptrAgenda[], int opcao) {
   //???É msm necessário
   struct contato *c;
   char filename[15];
 
   switch (opcao) {
-  case 1:
-    break;
-
-  case 2:
-    inserirContato(agenda);
-    break;
-
-  case 3:
-    printf("\nInforme o contato que deseja remover:");
-    scanf("%[^\n]%*c", c->nome);
-    removerContato(agenda, c->nome);
-    break;
-
-  case 4:
-    printf("\nInforme o contato que deseja buscar:");
-    scanf("%[^\n]%*c", c->nome);
-    buscarContato(agenda, c->nome);
-    break;
-
-  case 5:
-    printf("\nInforme o nome do arquivo par o qual os dados de contato serao "
-           "exportados");
-    scanf("%[^\n]%*c", filename);
-    exportarAgenda(agenda, filename);
-    break;
+    case 1:
+      break;
+  
+    case 2:
+      inserirContato(ptrAgenda);
+      break;
+  
+    case 3:
+      printf("\nInforme o contato que deseja remover:");
+      scanf("%[^\n]%*c", c->nome);
+      removerContato(ptrAgenda, c->nome);
+      break;
+  
+    case 4:
+      printf("\nInforme o contato que deseja buscar:");
+      scanf("%[^\n]%*c", c->nome);
+      buscarContato(ptrAgenda, c->nome);
+      break;
+  
+    case 5:
+      printf("\nInforme o nome do arquivo par o qual os dados de contato serao exportados");
+      scanf("%[^\n]%*c", filename);
+      exportarAgenda(ptrAgenda, filename);
+      break;
+  
+    case 6:
+      exibirAgenda(ptrAgenda);
+      break;
   }
 }
 
@@ -118,6 +123,7 @@ void inserirContato(struct contato *agenda[]) {
     index++;
     agenda[index] = ptrContato;
   }
+  //Teste
   printf("Contato inserido\n");
   printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", agenda[index]->nome,
          agenda[index]->tel, agenda[index]->tel);
@@ -145,13 +151,43 @@ struct contato *buscarContato(agenda lista, char nome[]) {
 
 void removerContato(agenda lista, char nome[]) {
   struct contato *contato = buscarContato(lista, nome);
-  // VERIFICAR!!! Talvez essa função libera o endereço da lista, mas não libera
-  // os espaços de memória alocados com os dados da struct de contato
+  /*DIFICULDADES!! VERIFICAR se essa função libera o endereço da lista, mas não libera os espaços de memória alocados com os dados da struct de contato*/
   free(contato);
 }
 
-// Essa função deverá abir um arquivo para leitura e então os dados de contatos
-// contidos na lista telefônica deverão ser copiados, usando uma função da
-// biblioteca string.h O problema é como realizar essa implementação usando
-// lógica de ponteiros??
-void exportarAgenda(agenda lista, char arq[]) {}
+/* DIFICULDADES! Essa função deverá abir um arquivo para escrita e então os dados de contatos contidos na lista telefônica deverão ser copiados, usando uma função da biblioteca string.h O problema é como realizar essa implementação usando lógica de ponteiros??*/
+void exportarAgenda(agenda lista, char arq[]) {
+  //Declarando ponteiro para o arquivo
+  FILE* fp;
+  char c;
+  int i = 0;
+  //Abertura de uma arquivo no modo escrita
+  fp = fopen(arq, "w");
+  /* Verificando se não houve algum erro durante esse processo, o que é feito averiguando se a função fopen retorna um valor não-nulo*/
+  if (fp == NULL) {
+    printf("Não foi possível abrir arquivo!");
+    exit(1);
+
+  } else {
+    printf("\nArquivo aberto com sucesso!\n");
+  }
+  //Percorrendo a lista telefônica (tabela Hash)
+  while (i < size) {
+    /*Encontrado um endereço armazendo na lista, escrevemos o contato alocado nesse endereço no arquivo. Para isso utilizamos a função fwrite. O primeiro argumento é o endereço que indica o contato, o segundo é tamanho da struct que indica esse dado. O terceiro argumento indica o número structs que se deseja. Aqui, optou-se por escrever apenas 1 struct, quando há um endereço presente no índice do array. No entanto, poderiamos passar o tamanho do array para escrever todas as structs alocadas nos ponteiros contidas nesse array, o que incluiria os valores NULL. O quarto argumento é o ponteiro para o arquivo.*/
+    if(lista[i] != NULL){
+      fwrite(lista[i],sizeof(struct contato), 1, fp);
+    }
+    i++;
+  }
+  
+  fclose(fp);
+}
+
+void exibirAgenda(agenda lista){
+  printf("****Lista Telefônica****");
+  for(int i = 0; i < size; i++){
+    printf("      Hash Index: %d", i);
+    printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", lista[i]->nome,
+         lista[i]->tel, lista[i]->tel);
+  }
+}
