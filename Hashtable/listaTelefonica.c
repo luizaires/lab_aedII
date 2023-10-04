@@ -151,14 +151,16 @@ void inserirContato(agenda lista) {
 
 struct contato *buscarContato(agenda lista, char nome[]) {
   // Calcula o valor da chave a a partir do nome do contato informado
+  printf("%s\n", nome);
   int key = calcularChave(nome);
   // Aplica a função hash para retornar o indice de uma dada chave
   int index = hashFunc(key);
+  printf("Index:%d\n", index);
   // Percorre a lista de contatos a partir desse indice
   for(int i = index; i < size; i++) {
-    if (lista[index]->nome == nome) {
+    if (lista[i]->nome == nome) {
       printf("Valor encontrado\n: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n",lista[index]->nome, lista[index]->tel,lista[index]->email);
-      return lista[index];
+      return lista[i];
     }
   }
   return 0;
