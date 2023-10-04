@@ -68,20 +68,20 @@ void executarMenu(struct contato *ptrAgenda[], int opcao) {
 
   case 3:
     printf("Informe o contato que deseja remover:");
-    scanf("%[^\n]%*c", nomeContato);
+    scanf("%s", nomeContato);
     removerContato(ptrAgenda, nomeContato);
     break;
 
   case 4:
     printf("Informe o contato que deseja buscar:");
-    scanf("%[^\n]%*c", nomeContato);
+    scanf("%s", nomeContato);
     buscarContato(ptrAgenda, nomeContato);
     break;
 
   case 5:
     printf("Informe o nome do arquivo par o qual os dados de contato serao "
            "exportados");
-    scanf("%[^\n]%*c", filename);
+    scanf("%s", filename);
     exportarAgenda(ptrAgenda, filename);
     break;
 
@@ -159,8 +159,6 @@ struct contato *buscarContato(agenda lista, char nome[]) {
     if (lista[index]->nome == nome) {
       printf("Valor encontrado\n: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n",lista[index]->nome, lista[index]->tel,lista[index]->email);
       return lista[index];
-    }else{
-      printf("Valor não encontrado!!");
     }
   }
   return 0;
