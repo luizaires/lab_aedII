@@ -1,7 +1,9 @@
 /*Etapas:
-1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem o retorno desejado,
-apenas se elas não possuem erros de compilação, como por exemplo, erros de tipagem
-2-Rodar o código, corrigindo os bugs na ordem que vão aparecendo de modo a liberar a pilha de execução, averiguando os retornos das funções.*/
+1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem
+o retorno desejado, apenas se elas não possuem erros de compilação, como por
+exemplo, erros de tipagem 2-Rodar o código, corrigindo os bugs na ordem que vão
+aparecendo de modo a liberar a pilha de execução, averiguando os retornos das
+funções.*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,70 +27,78 @@ void exportarAgenda(agenda, char[]);
 void exibirAgenda(agenda);
 
 int main(void) {
-  struct contato *agenda[size];
+  struct contato* agenda[size];
   int opt;
+  memset(agenda, 0, size*sizeof(agenda[0]));
   do {
     opt = exibirMenu();
     executarMenu(agenda, opt);
   } while (opt != 1);
+
+  for(int i = 0; i < size;i++){
+    if(agenda[i] != NULL){
+      free(agenda[i]);
+    }
+  }
   return 0;
 }
 
-//Criação de um menu que executará a função desejada, de acordo com a opção escolhida
-//A sua principal vantagem é que essa execução é executada em loop.
-//Assim, não é necessário testar todas as implementações na função main
-//Podemos escolher quais executar, ou mesmo fazer isso mais de uma vez
-//Sem necessidade de rodar o código novamente
+// Criação de um menu que executará a função desejada, de acordo com a opção
+// escolhida A sua principal vantagem é que essa execução é executada em loop.
+// Assim, não é necessário testar todas as implementações na função main
+// Podemos escolher quais executar, ou mesmo fazer isso mais de uma vez
+// Sem necessidade de rodar o código novamente
 int exibirMenu() {
   int opcao;
 
-  printf("\nMenu de opções\n");
+  printf("\nMenu de opcoes\n");
   printf("1. Sair\n");
   printf("2. Inserir novo contato\n");
   printf("3. Remover contato da lista\n");
   printf("4. Buscar contato na agenda\n");
   printf("5. Exportar agenda de contatos para arquivo\n");
-  printf("6. Exibir lista telefônica\n");
-  printf("Digite o número corresponde a opcão que deseja executar: ");
+  printf("6. Exibir lista telefonica\n");
+  printf("Digite o numero corresponde a opcao que deseja executar: ");
   scanf("%d", &opcao);
 
   return opcao;
 }
 
 void executarMenu(struct contato *ptrAgenda[], int opcao) {
-  //???É msm necessário
-  struct contato *c;
   char filename[15];
+  char nomeContato[25];
 
   switch (opcao) {
-    case 1:
-      break;
-  
-    case 2:
-      inserirContato(ptrAgenda);
-      break;
-  
-    case 3:
-      printf("\nInforme o contato que deseja remover:");
-      scanf("%[^\n]%*c", c->nome);
-      removerContato(ptrAgenda, c->nome);
-      break;
-  
-    case 4:
-      printf("\nInforme o contato que deseja buscar:");
-      scanf("%[^\n]%*c", c->nome);
-      buscarContato(ptrAgenda, c->nome);
-      break;
-  
-    case 5:
-      printf("\nInforme o nome do arquivo par o qual os dados de contato serao exportados");
-      scanf("%[^\n]%*c", filename);
-      exportarAgenda(ptrAgenda, filename);
-      break;
-  
-    case 6:
-      exibirAgenda(ptrAgenda);
-      break;
+  case 1:
+    break;
+
+  case 2:
+    inserirContato(ptrAgenda);
+    break;
+
+  case 3:
+    printf("Informe o contato que deseja remover:");
+    scanf("%[^\n]%*c", nomeContato);
+    removerContato(ptrAgenda, nomeContato);
+    break;
+
+  case 4:
+    printf("Informe o contato que deseja buscar:");
+    scanf("%[^\n]%*c", nomeContato);
+    buscarContato(ptrAgenda, nomeContato);
+    break;
+
+  case 5:
+    printf("Informe o nome do arquivo par o qual os dados de contato serao "
+           "exportados");
+    scanf("%[^\n]%*c", filename);
+    exportarAgenda(ptrAgenda, filename);
+    break;
+
+  case 6:
+    printf("Opção: %d\nPonteiro da agenda: %p\n", opcao, ptrAgenda);
+    exibirAgenda(ptrAgenda);
+    break;
   }
 }
 
@@ -99,7 +109,7 @@ int calcularChave(char str[]) {
   for (int i = 0; i <= strlen(str); i++) {
     key += str[i];
   }
-  printf("Valor da chave: %d", key);
+  printf("Valor da chave: %d\n", key);
   return key;
 }
 
@@ -117,33 +127,41 @@ struct contato *criarContato() {
   scanf("%s", (*novo).tel);
   printf("E-mail: ");
   scanf("%s", (*novo).email);
-  printf("\nNome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
+  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
          novo->email);
   return novo;
 }
 
 void inserirContato(agenda lista) {
-  printf("\nPonteiro agenda: %p\n", lista);
+  printf("Ponteiro agenda: %p\n", lista);
   struct contato *ptrContato = criarContato();
-  printf("\nPonteiro struct: %p\n", ptrContato);
+  printf("Ponteiro struct: %p\n", ptrContato);
   int key = calcularChave(ptrContato->nome);
-  printf("\nChave: %d\n", key);
+  printf("Chave: %d\n", key);
   int hashIndex = hashFunc(key);
-  //Desafio!Para evitar que o valor do indice da tabela hash fosse atualizado a cada laço de repetição
-  //foi necessario armazená-lo em uma variável temporária
-  int temp = hashIndex;
+  // Desafio!Para evitar que o valor do indice da tabela hash fosse atualizado a
+  // cada laço de repetição foi necessario armazená-lo em uma variável
+  // temporária
   printf("Index: %d\n", hashIndex);
-  while (lista[temp] != NULL && temp < size) {
-    lista[temp] = ptrContato;
-    temp++;
+  if (lista[hashIndex] == NULL) {
+    lista[hashIndex] = ptrContato;
+  } else {
+    int temp = hashIndex+1;
+    while (lista[temp] != NULL && temp < size) {
+      lista[temp] = ptrContato;
+      printf("Indice %d da lista ocupado\n", hashIndex);
+      temp++;
+      hashIndex = temp;
+    }
+    printf("Indice %d da lista livre: %p\n", hashIndex, lista[hashIndex]);
   }
-  if(lista[temp] == NULL){
-    hashIndex = temp;
+  // Teste
+  printf("Contato inserido\n");
+  for (int i = 0; i < size; i++) {
+    printf("%p", lista[i]);
+    printf(" ");
   }
-  //Teste
-  printf("\nContato inserido\n");
-  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", lista[hashIndex]->nome,
-         lista[hashIndex]->tel, lista[hashIndex]->email);
+  //printf("HashIndex: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n", hashIndex,lista[hashIndex]->nome, lista[hashIndex]->tel,lista[hashIndex]->email);
 }
 
 struct contato *buscarContato(agenda lista, char nome[]) {
@@ -168,50 +186,65 @@ struct contato *buscarContato(agenda lista, char nome[]) {
 
 void removerContato(agenda lista, char nome[]) {
   struct contato *contato = buscarContato(lista, nome);
-  /*DIFICULDADES!! VERIFICAR se essa função libera o endereço da lista, mas não libera os espaços de memória alocados com os dados da struct de contato*/
+  /*DIFICULDADES!! VERIFICAR se essa função libera o endereço da lista, mas não
+   * libera os espaços de memória alocados com os dados da struct de contato*/
   free(contato);
 }
 
-/* DIFICULDADES! 
-Essa função deverá abir um arquivo para escrita e então 
+/* DIFICULDADES!
+Essa função deverá abir um arquivo para escrita e então
 os dados de contatos contidos na lista telefônica deverão ser copiados,
-usando uma função da biblioteca string.h 
+usando uma função da biblioteca string.h
 O problema é como realizar essa implementação usando lógica de ponteiros??*/
 /*SOLUÇÃO ENCONTRDADA
 A biblioteca stdio.h possui a função fwrite que permite escrever
 os elementos da struct para um arquivo*/
 void exportarAgenda(agenda lista, char arq[]) {
-  //Declarando ponteiro para o arquivo
-  FILE* fp;
+  // Declarando ponteiro para o arquivo
+  FILE *fp;
   char c;
   int i = 0;
-  //Abertura de uma arquivo no modo escrita
+  // Abertura de uma arquivo no modo escrita
   fp = fopen(arq, "w");
-  /* Verificando se não houve algum erro durante esse processo, o que é feito averiguando se a função fopen retorna um valor não-nulo*/
+  /* Verificando se não houve algum erro durante esse processo, o que é feito
+   * averiguando se a função fopen retorna um valor não-nulo*/
   if (fp == NULL) {
-    printf("Não foi possível abrir arquivo!");
+    printf("Nao foi possivel abrir arquivo!\n");
     exit(1);
 
   } else {
-    printf("\nArquivo aberto com sucesso!\n");
+    printf("Arquivo aberto com sucesso!\n");
   }
-  //Percorrendo a lista telefônica (tabela Hash)
+  // Percorrendo a lista telefônica (tabela Hash)
   while (i < size) {
-    /*Encontrado um endereço armazendo na lista, escrevemos o contato alocado nesse endereço no arquivo. Para isso utilizamos a função fwrite. O primeiro argumento é o endereço que indica o contato, o segundo é tamanho da struct que indica esse dado. O terceiro argumento indica o número structs que se deseja. Aqui, optou-se por escrever apenas 1 struct, quando há um endereço presente no índice do array. No entanto, poderiamos passar o tamanho do array para escrever todas as structs alocadas nos ponteiros contidas nesse array, o que incluiria os valores NULL. O quarto argumento é o ponteiro para o arquivo.*/
-    if(lista[i] != NULL){
-      fwrite(lista[i],sizeof(struct contato), 1, fp);
+    /*Encontrado um endereço armazendo na lista, escrevemos o contato alocado
+     * nesse endereço no arquivo. Para isso utilizamos a função fwrite. O
+     * primeiro argumento é o endereço que indica o contato, o segundo é tamanho
+     * da struct que indica esse dado. O terceiro argumento indica o número
+     * structs que se deseja. Aqui, optou-se por escrever apenas 1 struct,
+     * quando há um endereço presente no índice do array. No entanto, poderiamos
+     * passar o tamanho do array para escrever todas as structs alocadas nos
+     * ponteiros contidas nesse array, o que incluiria os valores NULL. O quarto
+     * argumento é o ponteiro para o arquivo.*/
+    if (lista[i] != NULL) {
+      fwrite(lista[i], sizeof(struct contato), 1, fp);
     }
     i++;
   }
-  
+
   fclose(fp);
 }
 
-void exibirAgenda(agenda lista){
-  printf("****Lista Telefônica****");
-  for(int i = 0; i < size; i++){
-    printf("      Hash Index: %d", i);
-    printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", lista[i]->nome,
-         lista[i]->tel, lista[i]->tel);
+void exibirAgenda(agenda lista) {
+  printf("****Lista Telefonica****\n");
+  for (int i = 0; i < size; i++) {
+    printf("\nHash Index: %d\n", i);
+    if (lista[i] == NULL) {
+      printf("Espaco Vazio!\n");
+    } else {
+      printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", lista[i]->nome,
+             lista[i]->tel, lista[i]->tel);
+    }
   }
 }
+/*Problema - Liberação de lixo da memória alocada*/
