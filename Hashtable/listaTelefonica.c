@@ -1,9 +1,3 @@
-/*Etapas:
-1-Implementação da lógica sem se preocupar, inicialmente, se as funções possuem
-o retorno desejado, apenas se elas não possuem erros de compilação, como por
-exemplo, erros de tipagem 2-Rodar o código, corrigindo os bugs na ordem que vão
-aparecendo de modo a liberar a pilha de execução, averiguando os retornos das
-funções.*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,11 +37,7 @@ int main(void) {
   return 0;
 }
 
-// Criação de um menu que executará a função desejada, de acordo com a opção
-// escolhida A sua principal vantagem é que essa execução é executada em loop.
-// Assim, não é necessário testar todas as implementações na função main
-// Podemos escolher quais executar, ou mesmo fazer isso mais de uma vez
-// Sem necessidade de rodar o código novamente
+
 int exibirMenu() {
   int opcao;
 
@@ -113,12 +103,10 @@ int calcularChave(char str[]) {
   return key;
 }
 
-// Retorna o índice que armazenará o endereço do contato inserido ao dividir o
-// valor da chave calculada pelo tamanho definido para a agenda
+// Implementando método da divisão
 int hashFunc(int key) { return key % size; }
 
-// Retorna o endereço de um ponteiro onde ficará alocado o struct contendo o
-// nome,o numero de telefone e o e-mail do contato
+// 
 struct contato *criarContato() {
   struct contato *novo = (struct contato *)malloc(sizeof(struct contato));
   printf("Nome do contato: ");
@@ -127,25 +115,19 @@ struct contato *criarContato() {
   scanf("%s", (*novo).tel);
   printf("E-mail: ");
   scanf("%s", (*novo).email);
-  printf("Nome: %s\nTelefone:%s\nE-mail: %s\n", novo->nome, novo->tel,
-         novo->email);
   return novo;
 }
 
 void inserirContato(agenda lista) {
-  printf("Ponteiro agenda: %p\n", lista);
   struct contato *ptrContato = criarContato();
-  printf("Ponteiro struct: %p\n", ptrContato);
   int key = calcularChave(ptrContato->nome);
-  printf("Chave: %d\n", key);
+  //Determinando a posição em que o contato será alocado
   int hashIndex = hashFunc(key);
-  // Desafio!Para evitar que o valor do indice da tabela hash fosse atualizado a
-  // cada laço de repetição foi necessario armazená-lo em uma variável
-  // temporária
-  printf("Index: %d\n", hashIndex);
+  //Aloca caso o valor armazenado seja nulo
   if (lista[hashIndex] == NULL) {
     lista[hashIndex] = ptrContato;
   } else {
+    //Na hipótese em que essa posição não esteja livre
     int temp = hashIndex+1;
     while (lista[temp] != NULL && temp < size) {
       lista[temp] = ptrContato;
@@ -153,15 +135,18 @@ void inserirContato(agenda lista) {
       temp++;
       hashIndex = temp;
     }
-    printf("Indice %d da lista livre: %p\n", hashIndex, lista[hashIndex]);
+    printf("Indice %d da lista livre\n", hashIndex);
   }
   // Teste
-  printf("Contato inserido\n");
   for (int i = 0; i < size; i++) {
     printf("%p", lista[i]);
     printf(" ");
   }
-  //printf("HashIndex: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n", hashIndex,lista[hashIndex]->nome, lista[hashIndex]->tel,lista[hashIndex]->email);
+  printf("\nContato inserido\n");
+  
+  printf("HashIndex: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n",
+        hashIndex,lista[hashIndex]->nome, lista[hashIndex]->tel,
+        lista[hashIndex]->email);
 }
 
 struct contato *buscarContato(agenda lista, char nome[]) {
@@ -170,35 +155,22 @@ struct contato *buscarContato(agenda lista, char nome[]) {
   // Aplica a função hash para retornar o indice de uma dada chave
   int index = hashFunc(key);
   // Percorre a lista de contatos a partir desse indice
-  while (lista[index] != NULL) {
-    // se o nome do contato localizado no índice é o mesmo do parâmetro
-    // informado na função de busca, o endereço do contato é retornado
+  for(int i = index; i < size; i++) {
     if (lista[index]->nome == nome) {
+      printf("Valor encontrado\n: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n",lista[index]->nome, lista[index]->tel,lista[index]->email);
       return lista[index];
+    }else{
+      printf("Valor não encontrado!!");
     }
-    // Caso não o encontre inicialmente na posição indicada pelo índice, a
-    // função irá verificar se o dado se encontra na posição seguinte
-    index++;
   }
-  // se não o contato não for encontrado, a função retorna o valor 0
   return 0;
 }
 
 void removerContato(agenda lista, char nome[]) {
   struct contato *contato = buscarContato(lista, nome);
-  /*DIFICULDADES!! VERIFICAR se essa função libera o endereço da lista, mas não
-   * libera os espaços de memória alocados com os dados da struct de contato*/
   free(contato);
 }
 
-/* DIFICULDADES!
-Essa função deverá abir um arquivo para escrita e então
-os dados de contatos contidos na lista telefônica deverão ser copiados,
-usando uma função da biblioteca string.h
-O problema é como realizar essa implementação usando lógica de ponteiros??*/
-/*SOLUÇÃO ENCONTRDADA
-A biblioteca stdio.h possui a função fwrite que permite escrever
-os elementos da struct para um arquivo*/
 void exportarAgenda(agenda lista, char arq[]) {
   // Declarando ponteiro para o arquivo
   FILE *fp;
@@ -206,32 +178,19 @@ void exportarAgenda(agenda lista, char arq[]) {
   int i = 0;
   // Abertura de uma arquivo no modo escrita
   fp = fopen(arq, "w");
-  /* Verificando se não houve algum erro durante esse processo, o que é feito
-   * averiguando se a função fopen retorna um valor não-nulo*/
   if (fp == NULL) {
     printf("Nao foi possivel abrir arquivo!\n");
     exit(1);
-
   } else {
     printf("Arquivo aberto com sucesso!\n");
   }
   // Percorrendo a lista telefônica (tabela Hash)
   while (i < size) {
-    /*Encontrado um endereço armazendo na lista, escrevemos o contato alocado
-     * nesse endereço no arquivo. Para isso utilizamos a função fwrite. O
-     * primeiro argumento é o endereço que indica o contato, o segundo é tamanho
-     * da struct que indica esse dado. O terceiro argumento indica o número
-     * structs que se deseja. Aqui, optou-se por escrever apenas 1 struct,
-     * quando há um endereço presente no índice do array. No entanto, poderiamos
-     * passar o tamanho do array para escrever todas as structs alocadas nos
-     * ponteiros contidas nesse array, o que incluiria os valores NULL. O quarto
-     * argumento é o ponteiro para o arquivo.*/
     if (lista[i] != NULL) {
       fwrite(lista[i], sizeof(struct contato), 1, fp);
     }
     i++;
   }
-
   fclose(fp);
 }
 
@@ -247,4 +206,3 @@ void exibirAgenda(agenda lista) {
     }
   }
 }
-/*Problema - Liberação de lixo da memória alocada*/
