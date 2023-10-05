@@ -8,6 +8,13 @@ struct contato {
   char tel[11];
   char email[50];
 };
+
+//Retorno da função buscar
+struct No {
+  struct contato* ptrContato;
+  int hashIndex;  
+};
+
 // Um vetor que guardará os endereços na posição (índice) retornada pela função
 // hashFunc
 typedef struct contato *agenda[size];
@@ -15,7 +22,7 @@ typedef struct contato *agenda[size];
 int exibirMenu(void);
 void executarMenu(agenda, int);
 void inserirContato(struct contato *agenda[]);
-struct contato *buscarContato(agenda, char[]);
+struct No buscarContato(agenda, char[]);
 void removerContato(agenda, char[]);
 void exportarAgenda(agenda, char[]);
 void exibirAgenda(agenda);
@@ -86,7 +93,6 @@ void executarMenu(struct contato *ptrAgenda[], int opcao) {
     break;
 
   case 6:
-    printf("Opção: %d\nPonteiro da agenda: %p\n", opcao, ptrAgenda);
     exibirAgenda(ptrAgenda);
     break;
   }
@@ -123,21 +129,21 @@ void inserirContato(agenda lista) {
   int key = calcularChave(ptrContato->nome);
   //Determinando a posição em que o contato será alocado
   int hashIndex = hashFunc(key);
+  printf("Hash index: %d\n", hashIndex);
   //Aloca caso o valor armazenado seja nulo
-  if (lista[hashIndex] == NULL) {
-    lista[hashIndex] = ptrContato;
-  } else {
-    //Na hipótese em que essa posição não esteja livre
-    int temp = hashIndex+1;
-    while (lista[temp] != NULL && temp < size) {
-      lista[temp] = ptrContato;
+  
+  while (hashIndex < size) {
+    if (lista[hashIndex] == NULL) {
+      lista[hashIndex] = ptrContato;
+      printf("Indice %d da lista livre\n", hashIndex);
+      break;
+    } else {
       printf("Indice %d da lista ocupado\n", hashIndex);
-      temp++;
-      hashIndex = temp;
+      hashIndex++;
     }
-    printf("Indice %d da lista livre\n", hashIndex);
   }
   // Teste
+  printf("Ponteiro para o contato: %p\n", ptrContato);
   for (int i = 0; i < size; i++) {
     printf("%p", lista[i]);
     printf(" ");
@@ -149,26 +155,35 @@ void inserirContato(agenda lista) {
         lista[hashIndex]->email);
 }
 
-struct contato *buscarContato(agenda lista, char nome[]) {
+struct No buscarContato(agenda lista, char nome[]) {
   // Calcula o valor da chave a a partir do nome do contato informado
   printf("%s\n", nome);
+  struct No endContato;
   int key = calcularChave(nome);
   // Aplica a função hash para retornar o indice de uma dada chave
-  int index = hashFunc(key);
-  printf("Index:%d\n", index);
+  int hashIndex = hashFunc(key);
+  printf("Index:%d\n", hashIndex);
+  printf("%s\n",lista[hashIndex]->nome);
+
   // Percorre a lista de contatos a partir desse indice
-  for(int i = index; i < size; i++) {
-    if (lista[i]->nome == nome) {
-      printf("Valor encontrado\n: %d\nNome: %s\nTelefone:%s\nE-mail: %s\n",lista[index]->nome, lista[index]->tel,lista[index]->email);
-      return lista[i];
+  while (hashIndex < size) {
+    if (strcmp(lista[hashIndex]->nome, nome) == 0) {
+      printf("Contato encontrado\n: %s, %s, %s\n",lista[hashIndex]->nome, lista[hashIndex]->tel,lista[hashIndex]->email);
+      endContato.hashIndex = hashIndex;
+      endContato.ptrContato = lista[hashIndex];
+      break;    
+    } else {
+      printf("Contato nao encontrado em index %d\n", hashIndex);
+      hashIndex++;
     }
   }
-  return 0;
+  return endContato;
 }
 
 void removerContato(agenda lista, char nome[]) {
-  struct contato *contato = buscarContato(lista, nome);
-  free(contato);
+  struct No endContato = buscarContato(lista, nome);
+  lista[endContato.hashIndex] = NULL;
+  free(endContato.ptrContato);
 }
 
 void exportarAgenda(agenda lista, char arq[]) {
