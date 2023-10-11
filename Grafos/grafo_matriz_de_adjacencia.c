@@ -21,6 +21,7 @@ vertice *criarVertice() {
   vertice *ptrVertice = malloc(sizeof(vertice *));
   printf("Nome: ");
   scanf("%s", ptrVertice->nome);
+  return ptrVertice;
 }
 
 grafo *criarGrafo(int v) {
@@ -30,16 +31,20 @@ grafo *criarGrafo(int v) {
   ptrGrafo->vertices = malloc(v * sizeof(vertice *));
   printf("Informe o nome dos vertices:\n");
   for (int i = 0; i < v; i++) {
-    printf("Vertice %d\n", i);
+    printf("\nVertice %d\n", i);
     ptrGrafo->vertices[i] = criarVertice();
   }
-  ptrGrafo->matrizAdjacencia = calloc(v, sizeof(int));
+  ptrGrafo->matrizAdjacencia = malloc(v * sizeof(int *));
+  for (int i = 0; i < v; i++) {
+    ptrGrafo->matrizAdjacencia = calloc(v, sizeof(int));
+  }
   return ptrGrafo;
 }
 
 void exibirVertices(grafo *g) {
+  printf("Vertices do grafo:\n");
   for (int i = 0; i < g->numVertices; i++) {
-    printf("%d: %s", i, (*g->vertices)->nome);
+    printf("%d: %s\n", i, g->vertices[i]->nome);
   }
 }
 
@@ -53,7 +58,24 @@ void inserirAresta(grafo *g) {
   printf("Distancia entre os vertices informados: ");
   scanf("%d", &dist);
   g->matrizAdjacencia[v1][v2] = dist;
-  g->matrizAdjacencia[v2][v1] = dist;
+  g->numArestas++;
 }
 
-int main(void) { return 0; }
+void exibirGrafo(grafo *g) {
+  for (int i = 0; i < g->numVertices; i++) {
+    for (int j = 0; j < g->numVertices; j++) {
+      printf("%d ", g->matrizAdjacencia[i][j]);
+    }
+    printf("\n");
+  }
+}
+
+int main(void) {
+  int v;
+  printf("Informe o numero de vertices do grafo: ");
+  scanf("%d", &v);
+  grafo *g = criarGrafo(v);
+  inserirAresta(g);
+  exibirGrafo(g);
+  return 0;
+}
