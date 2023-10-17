@@ -34,9 +34,9 @@ grafo *criarGrafo(int v) {
     printf("\nVertice %d\n", i);
     ptrGrafo->vertices[i] = criarVertice();
   }
-  ptrGrafo->matrizAdjacencia = malloc(v * sizeof(int *));
+  ptrGrafo->matrizAdjacencia = calloc(v, sizeof(int *));
   for (int i = 0; i < v; i++) {
-    ptrGrafo->matrizAdjacencia = calloc(v, sizeof(int));
+    ptrGrafo->matrizAdjacencia[i] = calloc(v, sizeof(int*));
   }
   return ptrGrafo;
 }
@@ -51,9 +51,9 @@ void exibirVertices(grafo *g) {
 void inserirAresta(grafo *g) {
   int v1, v2, dist;
   exibirVertices(g);
-  printf("Digite uma opção(inteiro) para o vertice de origem: ");
+  printf("Digite uma opcao(inteiro) para o vertice de origem: ");
   scanf("%d", &v1);
-  printf("Digite uma opção(inteiro) para o vertice de destino: ");
+  printf("Digite uma opcao(inteiro) para o vertice de destino: ");
   scanf("%d", &v2);
   printf("Distancia entre os vertices informados: ");
   scanf("%d", &dist);
@@ -62,11 +62,33 @@ void inserirAresta(grafo *g) {
 }
 
 void exibirGrafo(grafo *g) {
-  for (int i = 0; i < g->numVertices; i++) {
-    for (int j = 0; j < g->numVertices; j++) {
+  int v = g->numVertices;
+
+  for (int i = 0; i < v; i++) {
+    for (int j = 0; j < v; j++) {
       printf("%d ", g->matrizAdjacencia[i][j]);
     }
     printf("\n");
+  }
+}
+
+void liberarGrafo(grafo* g){
+  for (int i = 0; i < g->numVertices; i++) {
+    free(g->vertices[i]);
+  }
+  for (int i = 0; i < g->numVertices; i++) {
+    free(g->matrizAdjacencia[i]);
+  }
+  free(g);
+}
+void teste(grafo* g){
+  if(g != NULL){
+    printf("Ponteiro para o grafo foi criado: %p\n", g);
+    printf("Numero de vertices: %d\n", g->numVertices);
+    printf("Numero de arestas: %d\n", g->numArestas);
+
+  }else{
+    printf("Alocacao falhou!\n");
   }
 }
 
@@ -74,8 +96,12 @@ int main(void) {
   int v;
   printf("Informe o numero de vertices do grafo: ");
   scanf("%d", &v);
+  printf("V = %d\n", v);
   grafo *g = criarGrafo(v);
+  teste(g);
   inserirAresta(g);
   exibirGrafo(g);
+  liberarGrafo(g);
+  teste(g);
   return 0;
 }
