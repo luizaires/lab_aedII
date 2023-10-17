@@ -63,10 +63,24 @@ void inserirAresta(grafo *g) {
 
 void exibirGrafo(grafo *g) {
   int v = g->numVertices;
-
+  printf(">>Ponteiro para o grafo: %p\n", g);
+  printf(">>Numero de vertices: %d\n", g->numVertices);
+  printf(">>Numero de arestas: %d\n", g->numArestas);
+  printf(">>Vertices = {\n");
   for (int i = 0; i < v; i++) {
+    printf("\tv%d = %s,\n",i, g->vertices[i]->nome);
+  }
+  printf("}\n");
+
+  printf(">>Matriz de Adjacencia:\n");
+  for (int i = 0; i < v; i++) {
+    printf("\t%s",g->vertices[i]->nome);
+  }
+  printf("\n");
+  for (int i = 0; i < v; i++) {
+    printf("%s",g->vertices[i]->nome);
     for (int j = 0; j < v; j++) {
-      printf("%d ", g->matrizAdjacencia[i][j]);
+      printf("\t%d", g->matrizAdjacencia[i][j]);
     }
     printf("\n");
   }
@@ -81,27 +95,42 @@ void liberarGrafo(grafo* g){
   }
   free(g);
 }
-void teste(grafo* g){
-  if(g != NULL){
-    printf("Ponteiro para o grafo foi criado: %p\n", g);
-    printf("Numero de vertices: %d\n", g->numVertices);
-    printf("Numero de arestas: %d\n", g->numArestas);
 
-  }else{
-    printf("Alocacao falhou!\n");
+int exibirMenu() {
+  int opcao;
+
+  printf("\nMenu de opcoes\n");
+  printf("1. Sair\n");
+  printf("2. Inserir nova Aresta\n");
+  printf("Digite o numero correspondente a opcao que deseja executar: ");
+  scanf("%d", &opcao);
+
+  return opcao;
+}
+
+void executarMenu(grafo* ptrGrafo, int opcao) {
+  switch (opcao) {
+  case 1:
+    break;
+
+  case 2:
+    inserirAresta(ptrGrafo);
+    exibirGrafo(ptrGrafo);
+    break;
   }
 }
 
 int main(void) {
   int v;
+  int opt;
   printf("Informe o numero de vertices do grafo: ");
   scanf("%d", &v);
   printf("V = %d\n", v);
   grafo *g = criarGrafo(v);
-  teste(g);
-  inserirAresta(g);
-  exibirGrafo(g);
+  do {
+    opt = exibirMenu();
+    executarMenu(g, opt);
+  } while (opt != 1);
   liberarGrafo(g);
-  teste(g);
   return 0;
 }
