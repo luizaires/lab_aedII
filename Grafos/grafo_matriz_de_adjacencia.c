@@ -96,6 +96,17 @@ void liberarGrafo(grafo* g){
   free(g);
 }
 
+int testarAlocacao(grafo* g){
+  if(g != NULL){
+    printf("Grafo alocado com sucesso!\n");
+    return 0;
+  }else{
+    printf("Alocacao falhou!\n");
+    return 1;
+  }
+}
+
+
 int exibirMenu() {
   int opcao;
 
@@ -127,6 +138,7 @@ int main(void) {
   scanf("%d", &v);
   printf("V = %d\n", v);
   grafo *g = criarGrafo(v);
+  testarAlocacao(g);
   do {
     opt = exibirMenu();
     executarMenu(g, opt);
